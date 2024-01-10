@@ -1,0 +1,1 @@
+This repository contains a specification of the first [Gossip Glomers challenge](https://fly.io/dist-sys/) -- a series of distributed systems challenges by [Kyle Kingsbury](https://aphyr.com/about) and [fly.io](https://fly.io).
