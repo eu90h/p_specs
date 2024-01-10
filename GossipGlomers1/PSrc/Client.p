@@ -13,7 +13,7 @@ machine Client {
     }
 
     start state Init {
-        entry (input : (server : Server )) {
+        entry (input : (server : Server)) {
             server = input.server;
             nextReqId = 0;
             goto Echoing;
