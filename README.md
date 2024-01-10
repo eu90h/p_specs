@@ -1,0 +1,1 @@
+This repository contains formal specifications of programs written in [P](https://p-org.github.io/P/), a language specifically intended for formal modeling and analysis of distributed systems that aims to make specification more accessible than, say, TLA+, while also aiming to alleviate combinatorial explosion of model state spaces.
