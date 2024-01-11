@@ -1,1 +1,1 @@
-Click [here](https://fly.io/dist-sys/3a/) for the original problem statement.
+This spec is intended to model Gossip Glomers challenge 3a/b. Click [here](https://fly.io/dist-sys/3a/) for the original problem statement. It is assumed here that the network perfectly delivers all messages.
