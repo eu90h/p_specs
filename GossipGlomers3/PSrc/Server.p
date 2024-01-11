@@ -13,45 +13,38 @@ machine Server {
     var messagesSeen : seq[int];
     var numMessagesSeen: int;
 
+    fun GossipValue(v: int) {
+        var s: Server;
+        foreach (s in neighbors) {
+            send s, eGossip, (src = this, message = v);
+        }
+    }
+
+    fun RecordMessage(v: int) {
+        messagesSeen += (numMessagesSeen, v);
+        numMessagesSeen = numMessagesSeen + 1;
+    }
+
     start state Serve {
         on eTopologyMsg do (topologyMsg : tTopologyMsg) {
             neighbors = topologyMsg.topology[this];
-            assert sizeof(neighbors) > 0;
         }
 
         on eBroadcastReq do (broadcastReq: tBroadcastReq) {
-            var response: tBroadcastResp;
-            var gossip: tGossip;
-            var s: Server;
-
-            messagesSeen += (numMessagesSeen, broadcastReq.message);
-            numMessagesSeen = numMessagesSeen + 1;
-            response = (src = this,);
-            send broadcastReq.src, eBroadcastResp, response;           
-            gossip = (src = this, message = broadcastReq.message);
-
-            foreach (s in neighbors) {
-                send s, eGossip, gossip;
-            }
+            RecordMessage(broadcastReq.message);
+            GossipValue(broadcastReq.message);
+            send broadcastReq.src, eBroadcastResp, (src = this,);
         }
 
         on eGossip do (gossip: tGossip) {
-            var response: tGossipResp;
-
-            messagesSeen += (numMessagesSeen, gossip.message);
-            numMessagesSeen = numMessagesSeen + 1;
-            response = (src = this,);
-            send gossip.src, eGossipResp, response;
+            RecordMessage(gossip.message);
+            send gossip.src, eGossipResp, (src = this,);
         }
-
-        on eGossipResp do (gossipResp: tGossipResp) {}
 
         on eReadReq do (readReq: tReadReq) {
-            var response: tReadResp;
-
-            assert sizeof(messagesSeen) > 0;
-            response = (src = this, messages = messagesSeen);
-            send readReq.src, eReadResp, response;
+            send readReq.src, eReadResp, (src = this, messages = messagesSeen);
         }
+
+        on eGossipResp do {}
     }
 }

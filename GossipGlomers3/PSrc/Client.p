@@ -13,44 +13,46 @@ event eReadResp: tReadResp;
 machine Client {
     var servers : set[Server];
     var numMessagesBroadcast: int;
+    var MaxMessagesBroadcast: int;
 
     fun SomeValue() : int {
         return choose(100) + 1;
     }
 
     start state Init {
-        entry (input : (servers : set[Server])) {
+        entry (input : (servers : set[Server], MaxMessagesBroadcast: int)) {
+            assert sizeof(input.servers) > 0;
+            assert input.MaxMessagesBroadcast > 0;
+            MaxMessagesBroadcast = input.MaxMessagesBroadcast;
             numMessagesBroadcast = 0;
             servers = input.servers;
-            assert sizeof(servers) > 0;
-            goto BroadcastingAndReading;
+            goto SendBroadcast;
         }
     }
 
-    state BroadcastingAndReading {
+    state SendBroadcast {
         entry {
             var someServer : Server;
             var x : int;
 
-            foreach (someServer in servers) {
-                x = SomeValue();
-                send someServer, eBroadcastReq, (src = this, message = x);
-            }
+            someServer = choose(servers);
+            x = SomeValue();
+            send someServer, eBroadcastReq, (src = this, message = x);
         }
 
         on eBroadcastResp do (resp : tBroadcastResp) {
-            var someServer : Server;
-            var x : int;
-
             numMessagesBroadcast = numMessagesBroadcast + 1;
-            if (numMessagesBroadcast >= 10) {
-                someServer = choose(servers);
-                send someServer, eReadReq, (src = this,);
+            if (numMessagesBroadcast < MaxMessagesBroadcast) {
+                goto SendBroadcast;
             } else {
-                x = SomeValue();
-                someServer = choose(servers);
-                send someServer, eBroadcastReq, (src = this, message = x);
+                goto ReadResult;
             }
+        }
+    }
+
+    state ReadResult {
+        entry {
+            send choose(servers), eReadReq, (src = this,);
         }
 
         on eReadResp do (resp: tReadResp) {}

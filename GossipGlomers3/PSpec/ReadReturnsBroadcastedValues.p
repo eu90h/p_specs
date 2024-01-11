@@ -1,7 +1,6 @@
-spec ReadReturnsBroadcastedValues observes eBroadcastReq, eBroadcastResp, eReadReq, eReadResp {
+spec ReadReturnsBroadcastedValues observes eBroadcastReq, eReadReq, eReadResp {
     var broadcastedValues: seq[int];
     var numValuesBroadcasted: int;
-    var numBroadcastResponses: int;
     var numReadReqs: int;
     var numReadResps: int;
 
@@ -16,10 +15,6 @@ spec ReadReturnsBroadcastedValues observes eBroadcastReq, eBroadcastResp, eReadR
         on eBroadcastReq do (req: tBroadcastReq) {
             broadcastedValues += (numValuesBroadcasted, req.message);
             numValuesBroadcasted = numValuesBroadcasted + 1;
-        }
-
-        on eBroadcastResp do (resp : tBroadcastResp) {
-            numBroadcastResponses = numBroadcastResponses+ 1;
         }
 
         on eReadReq do {

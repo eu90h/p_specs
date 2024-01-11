@@ -32,7 +32,7 @@ machine TestWithSingleClient {
             send n2, eTopologyMsg, (topology = topology,);
             send n3, eTopologyMsg, (topology = topology,);
 
-            client = new Client((servers = servers,));
+            client = new Client((servers = servers, MaxMessagesBroadcast = 1000));
         }
     }
 }
