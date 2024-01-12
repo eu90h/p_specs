@@ -33,7 +33,7 @@ machine Server {
         on eBroadcastReq do (broadcastReq: tBroadcastReq) {
             RecordMessage(broadcastReq.message);
             GossipValue(broadcastReq.message);
-            send broadcastReq.src, eBroadcastResp, (src = this,);
+            send broadcastReq.src, eBroadcastResp, (src = this, in_response_to = broadcastReq.msg_id);
         }
 
         on eGossip do (gossip: tGossip) {
@@ -43,6 +43,10 @@ machine Server {
 
         on eReadReq do (readReq: tReadReq) {
             send readReq.src, eReadResp, (src = this, messages = messagesSeen);
+        }
+
+        on eShutDown do {
+            raise halt;
         }
 
         on eGossipResp do {}

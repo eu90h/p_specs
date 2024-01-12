@@ -1,7 +1,7 @@
-type tBroadcastReq = (src: Client, message: int);
+type tBroadcastReq = (src: Client, message: int, msg_id: int);
 event eBroadcastReq : tBroadcastReq;
 
-type tBroadcastResp = (src: Server);
+type tBroadcastResp = (src: Server, in_response_to: int);
 event eBroadcastResp: tBroadcastResp;
 
 type tReadReq = (src: Client);
@@ -14,6 +14,7 @@ machine Client {
     var servers : set[Server];
     var numMessagesBroadcast: int;
     var MaxMessagesBroadcast: int;
+    var nextId : int;
 
     fun SomeValue() : int {
         return choose(100) + 1;
@@ -25,6 +26,7 @@ machine Client {
             assert input.MaxMessagesBroadcast > 0;
             MaxMessagesBroadcast = input.MaxMessagesBroadcast;
             numMessagesBroadcast = 0;
+            nextId = 0;
             servers = input.servers;
             goto SendBroadcast;
         }
@@ -32,20 +34,13 @@ machine Client {
 
     state SendBroadcast {
         entry {
-            var someServer : Server;
-            var x : int;
-
-            someServer = choose(servers);
-            x = SomeValue();
-            send someServer, eBroadcastReq, (src = this, message = x);
-        }
-
-        on eBroadcastResp do (resp : tBroadcastResp) {
-            numMessagesBroadcast = numMessagesBroadcast + 1;
-            if (numMessagesBroadcast < MaxMessagesBroadcast) {
-                goto SendBroadcast;
-            } else {
+            if (numMessagesBroadcast >= MaxMessagesBroadcast) {
                 goto ReadResult;
+            } else if (numMessagesBroadcast < MaxMessagesBroadcast) {
+                send choose(servers), eBroadcastReq, (src = this, message = SomeValue(), msg_id = nextId);
+                numMessagesBroadcast = numMessagesBroadcast + 1;
+                nextId = nextId + 1;
+                goto SendBroadcast;
             }
         }
     }
@@ -53,8 +48,11 @@ machine Client {
     state ReadResult {
         entry {
             send choose(servers), eReadReq, (src = this,);
+            receive { 
+                case eReadResp: (resp: tReadResp) {}
+            }
         }
 
-        on eReadResp do (resp: tReadResp) {}
+        on eBroadcastResp do {}
     }
 }
