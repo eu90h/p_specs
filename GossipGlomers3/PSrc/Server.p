@@ -12,12 +12,18 @@ machine Server {
     var neighbors : set[Server];
     var messagesSeen : seq[int];
     var numMessagesSeen: int;
+    var is_network_unreliable: bool;
 
     fun GossipValue(v: int) {
         var s: Server;
         foreach (s in neighbors) {
-            send s, eGossip, (src = this, message = v);
+            Send(s, eGossip, (src = this, message = v));
         }
+    }
+
+    fun Send(target: machine, message: event, payload: any) {
+        if(is_network_unreliable) UnReliableSend(target, message, payload);
+        else send target, message, payload;
     }
 
     fun RecordMessage(v: int) {
@@ -25,7 +31,14 @@ machine Server {
         numMessagesSeen = numMessagesSeen + 1;
     }
 
-    start state Serve {
+    start state Init {
+        entry (payload : (is_network_unreliable: bool)) {
+            is_network_unreliable = payload.is_network_unreliable;
+            goto Serve;
+        }
+    }
+
+    state Serve {
         on eTopologyMsg do (topologyMsg : tTopologyMsg) {
             neighbors = topologyMsg.topology[this];
         }
@@ -33,16 +46,16 @@ machine Server {
         on eBroadcastReq do (broadcastReq: tBroadcastReq) {
             RecordMessage(broadcastReq.message);
             GossipValue(broadcastReq.message);
-            send broadcastReq.src, eBroadcastResp, (src = this, in_response_to = broadcastReq.msg_id);
+            Send(broadcastReq.src, eBroadcastResp, (src = this, in_response_to = broadcastReq.msg_id));
         }
 
         on eGossip do (gossip: tGossip) {
             RecordMessage(gossip.message);
-            send gossip.src, eGossipResp, (src = this,);
+            Send(gossip.src, eGossipResp, (src = this,));
         }
 
         on eReadReq do (readReq: tReadReq) {
-            send readReq.src, eReadResp, (src = this, messages = messagesSeen);
+            Send(readReq.src, eReadResp, (src = this, messages = messagesSeen));
         }
 
         on eShutDown do {
