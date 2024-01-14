@@ -15,6 +15,8 @@ machine Client {
     var numMessagesBroadcast: int;
     var numBroadcastResponses: int;
     var MaxMessagesBroadcast: int;
+    var trueSum: int;
+    var numReads: int;
 
     fun SomeValue() : int {
         return choose(100) + 1;
@@ -27,6 +29,8 @@ machine Client {
             MaxMessagesBroadcast = input.MaxMessagesBroadcast;
             numMessagesBroadcast = 0;
             numBroadcastResponses= 0;
+            numReads = 1;
+            trueSum = 0;
             servers = input.servers;
             goto SendBroadcast;
         }
@@ -34,11 +38,15 @@ machine Client {
 
     state SendBroadcast {
         entry {
+            var v: int;
             if (numBroadcastResponses >= MaxMessagesBroadcast) {
                 goto ReadResult;
             } else if (numMessagesBroadcast < MaxMessagesBroadcast) {
-                send choose(servers), eAdd, (src = this, delta = SomeValue(), msg_id = RandomID());
+                v = SomeValue();
+                trueSum = trueSum + v;
+                send choose(servers), eAdd, (src = this, delta = v, msg_id = RandomID());
                 numMessagesBroadcast = numMessagesBroadcast + 1;
+                print format("trueSum: {0}", trueSum);
             }
         }
 
@@ -53,6 +61,10 @@ machine Client {
             send choose(servers), eReadReq, (src = this, msg_id = RandomID());
         }
 
-        on eReadResp do {}
+        on eReadResp do (readResp: tReadResp) {
+            numReads = numReads - 1;
+            assert trueSum == readResp.value;
+            if (numReads > 0) goto ReadResult;
+        }
     }
 }

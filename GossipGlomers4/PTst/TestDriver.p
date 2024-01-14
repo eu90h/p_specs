@@ -11,9 +11,9 @@ machine TestWithSingleClientWithNoFailures {
             var n2: Server;
             var n3: Server;
 
-            n1 = new Server((is_network_unreliable = false,));
-            n2 = new Server((is_network_unreliable = false,));
-            n3 = new Server((is_network_unreliable = false,));
+            n1 = new Server((isNetworkUnreliable = false,));
+            n2 = new Server((isNetworkUnreliable = false,));
+            n3 = new Server((isNetworkUnreliable = false,));
             
             servers += (n1);
             servers += (n2);
@@ -29,9 +29,9 @@ machine TestWithSingleClientWithNoFailures {
             topology[n2] = neighbors2;
             topology[n3] = neighbors3;
 
-            send n1, eTopologyMsg, (topology = topology,);
-            send n2, eTopologyMsg, (topology = topology,);
-            send n3, eTopologyMsg, (topology = topology,);
+            send n1, eTopologyMsg, (topology = topology, allServers = servers);
+            send n2, eTopologyMsg, (topology = topology, allServers = servers);
+            send n3, eTopologyMsg, (topology = topology, allServers = servers);
 
             client = new Client((servers = servers, MaxMessagesBroadcast = 100));
         }
@@ -51,9 +51,9 @@ machine TestWithSingleClientWithUnreliableNetwork {
             var n2: Server;
             var n3: Server;
 
-            n1 = new Server((is_network_unreliable = true,));
-            n2 = new Server((is_network_unreliable = true,));
-            n3 = new Server((is_network_unreliable = true,));
+            n1 = new Server((isNetworkUnreliable = true,));
+            n2 = new Server((isNetworkUnreliable = true,));
+            n3 = new Server((isNetworkUnreliable = true,));
             
             servers += (n1);
             servers += (n2);
@@ -64,15 +64,17 @@ machine TestWithSingleClientWithUnreliableNetwork {
             topology[n1] = neighbors1;
 
             neighbors2 += (n1);
+            neighbors2 += (n3);
             neighbors3 += (n1);
+            neighbors3 += (n2);
             topology[n2] = neighbors2;
             topology[n3] = neighbors3;
 
-            send n1, eTopologyMsg, (topology = topology,);
-            send n2, eTopologyMsg, (topology = topology,);
-            send n3, eTopologyMsg, (topology = topology,);
+            send n1, eTopologyMsg, (topology = topology, allServers = servers);
+            send n2, eTopologyMsg, (topology = topology, allServers = servers);
+            send n3, eTopologyMsg, (topology = topology, allServers = servers);
 
-            client = new Client((servers = servers, MaxMessagesBroadcast = 1000));
+            client = new Client((servers = servers, MaxMessagesBroadcast = 10));
         }
     }
 }
