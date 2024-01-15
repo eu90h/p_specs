@@ -1,0 +1,1 @@
+This specification describes the Le Lann-Chang-Roberts (LCR) algorithm for leader election in a synchronous ring. Details of the algorithm can be found in chapter 3 of Nancy Lynch's Distributed Algorithms textbook.
