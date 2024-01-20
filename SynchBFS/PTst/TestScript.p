@@ -1,3 +1,3 @@
 test tcSingleClient [main=TestWithSingleClientWithNoFailures]:
-  assert CheckDFSTreeInvariants in
+  assert CheckBFSTreeInvariants in
   (union Node, RoundOrchestrator, { TestWithSingleClientWithNoFailures });
