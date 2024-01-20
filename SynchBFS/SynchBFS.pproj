@@ -1,0 +1,10 @@
+<Project>
+<ProjectName>SynchBFS</ProjectName>
+<InputFiles>
+    <PFile>./PForeign/</PFile>
+    <PFile>./PSrc/</PFile>
+    <PFile>./PSpec/</PFile>
+    <PFile>./PTst/</PFile>
+</InputFiles>
+<OutputDir>./PGenerated/</OutputDir>
+</Project>

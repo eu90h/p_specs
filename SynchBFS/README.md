@@ -1,0 +1,1 @@
+This is a basic breadth-first search algorithm in a general synchronous network. See chapter 4 of Nancy Lynch's Distributed Algorithms. Also see chapters 3 & 4 of [James Aspnes' notes](https://www.cs.yale.edu/homes/aspnes/classes/465/notes.pdf).
