@@ -24,19 +24,26 @@ machine TestWithSingleClientWithNoFailures {
             outNeighbors[nodes[0]] += (nodes[2]);
             outNeighbors[nodes[0]] += (nodes[3]);
 
+            outNeighbors[nodes[1]] += (nodes[0]);
             outNeighbors[nodes[1]] += (nodes[4]);
 
+            outNeighbors[nodes[2]] += (nodes[0]);
             outNeighbors[nodes[2]] += (nodes[5]);
             outNeighbors[nodes[2]] += (nodes[6]);
 
+            outNeighbors[nodes[3]] += (nodes[0]);
             outNeighbors[nodes[3]] += (nodes[7]);
 
+            outNeighbors[nodes[4]] += (nodes[1]);
             outNeighbors[nodes[4]] += (nodes[8]);
 
+            outNeighbors[nodes[6]] += (nodes[2]);
             outNeighbors[nodes[6]] += (nodes[9]);
             outNeighbors[nodes[6]] += (nodes[7]);
 
+            outNeighbors[nodes[8]] += (nodes[4]);
             outNeighbors[nodes[8]] += (nodes[7]);
+            outNeighbors[nodes[7]] += (nodes[8]);
             counter = 0;
             ro = new RoundOrchestrator((numNodes=NumNodes,));
             announce eAllNodes, nodes;
